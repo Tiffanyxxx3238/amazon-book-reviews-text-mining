@@ -1,0 +1,50 @@
+Keyword Analysis Summary
+============================================================
+
+1. Corpus Overview
+- all_reviews: 500 documents
+- positive_reviews: 397 documents
+- negative_reviews: 66 documents
+
+2. Top Keywords by Method
+
+[all_reviews]
+TF top keywords:
+book, read, one, story, time, like, would, novel, character, make, people, really, good, much, love
+TF-IDF top keywords:
+book, read, one, story, time, great, like, really, love, would, good, character, novel, get, life
+
+[positive_reviews]
+TF top keywords:
+book, read, one, story, time, like, would, character, great, life, make, people, novel, good, love
+TF-IDF top keywords:
+book, read, one, story, great, time, love, really, good, like, life, character, get, would, year
+
+[negative_reviews]
+TF top keywords:
+book, read, one, would, story, time, really, novel, people, character, make, like, author, even, many
+TF-IDF top keywords:
+book, read, would, one, really, time, story, like, novel, make, people, author, good, even, character
+
+3. Method Comparison
+
+[all_reviews]
+- Overlap keywords: book, character, good, like, love, novel, one, read, really, story, time, would
+- TF-only keywords: make, much, people
+- TF-IDF-only keywords: get, great, life
+
+[positive_reviews]
+- Overlap keywords: book, character, good, great, life, like, love, one, read, story, time, would
+- TF-only keywords: make, novel, people
+- TF-IDF-only keywords: get, really, year
+
+[negative_reviews]
+- Overlap keywords: author, book, character, even, like, make, novel, one, people, read, really, story, time, would
+- TF-only keywords: many
+- TF-IDF-only keywords: good
+
+4. Initial Findings
+- TF tends to highlight words that appear frequently across the corpus.
+- TF-IDF tends to highlight words that are more distinctive or representative in specific reviews.
+- If positive and negative groups show different keywords, this suggests that keyword extraction can capture sentiment-related patterns.
+- The comparison between TF and TF-IDF helps reveal the difference between frequency-based importance and distinctiveness-based importance.
