@@ -1,0 +1,30 @@
+Example 1
+Original Text:
+This was one of the best books I have ever read ... Easily, easily the best book by this author
+Processed Text:
+one best book ever read easily easily best book author
+--------------------------------------------------
+Example 2
+Original Text:
+I have been a fan of L.J. Smith ever since book one of _The Vampire Diaries_. With each of her books you can honestly BELIEVE that what she is writing about is the truth, even if the characters are ficticious. Dughters of Darkness (as well as any Night World book or the Vampire Diaries trilogy) should be required reading for anyone who believes in Vampires (or thinks they are one *grin*). Happy reading
+Processed Text:
+fan lj smith ever since book one vampire diary book honestly believe writing truth even character ficticious dughters darkness well night world book vampire diary trilogy required reading anyone belief vampire think one grin happy reading
+--------------------------------------------------
+Example 3
+Original Text:
+Finally, a historian has written a book that details the origins of modern Witchcraft and Wicca. And said historian actually did a great deal of research and backs up his thesis with factual, primary source material, as opposed to the usual fantastical wish-fulfillment claptrap that many Neo-Pagan authors use to support thier pet theories regarding the history of Witchcraft.Some people will be disappointed in this book, no doubt, for nowhere does Hutton mention an unbroken lineage of Witches that stretches beyond the burning times far into the dim reaches of matriarchal prehistory where all the women were strong, the men were beautiful, and the children were peaceful and never hit each other over the head with rocks whilst playing oppressive, competitive male-oriented team sports.What this book does detail is a plausible explaination as to -why- modern Witchcraft would arise at all, and how it fits into post industrial society. I cannot praise the fact that Hutton doesn't only delve into the history of Witchcraft, but he shows us why it is important in the first place, and what it has to say about society as a whole, and Neo-Pagans in specific.The book is well-written, if densely packed with information. It is not an easy read; if one skims, one is apt to miss essential details and lose sight of the myriad threads that Hutton traces in his search for the warp and weft of Witchcraft today. I took my time reading this book, savoring it with rhapsodic glee: it was good to find that there was an academic who had actually taken the time to prove some of my own pet theories about Witchcraft in England during the modern period.At any rate, this book belongs on the shelf of every literate and educated Witch, Wiccan and Neo-Pagan in the world. If we Witches ever got around to opening up schools, I believe this should be a standard history text for any class that includes the study of our religious beliefs. It is always important to know where one comes from, in order to better decide where one would like to go.
+Processed Text:
+finally historian written book detail origin modern witchcraft wicca said historian actually great deal research back thesis factual primary source material opposed usual fantastical wishfulfillment claptrap many neopagan author use support thier pet theory regarding history witchcraftsome people disappointed book doubt nowhere hutton mention unbroken lineage witch stretch beyond burning time far dim reach matriarchal prehistory woman strong men beautiful child peaceful never hit head rock whilst playing oppressive competitive maleoriented team sportswhat book detail plausible explaination modern witchcraft would arise fit post industrial society cannot praise fact hutton doesnt delve history witchcraft show u important first place say society whole neopagans specificthe book wellwritten densely packed information easy read one skim one apt miss essential detail lose sight myriad thread hutton trace search warp weft witchcraft today took time reading book savoring rhapsodic glee good find academic actually taken time prove pet theory witchcraft england modern periodat rate book belongs shelf every literate educated witch wiccan neopagan world witch ever got around opening school believe standard history text class includes study religious belief always important know one come order better decide one would like go
+--------------------------------------------------
+Example 4
+Original Text:
+Your stomach turned by gruesome details? Then this is not the book for you! Well written with realistic discriptions of life in a forensic morgue, this book is extremely hard to put down. The ending is rather sudden, and somewhat of an anticlimax, but that aside I would defintely recomend this book to crime lovers - it will keep you guessing
+Processed Text:
+stomach turned gruesome detail book well written realistic discriptions life forensic morgue book extremely hard put ending rather sudden somewhat anticlimax aside would defintely recomend book crime lover keep guessing
+--------------------------------------------------
+Example 5
+Original Text:
+Poor Tess! Life is hard from beginning to end for this poor girl.Ikept hoping something would work out for her but alas it never did.Still a great read another Hardy classic I really enjoyed!
+Processed Text:
+poor tess life hard beginning end poor girlikept hoping something would work ala never didstill great read another hardy classic really enjoyed
+--------------------------------------------------
