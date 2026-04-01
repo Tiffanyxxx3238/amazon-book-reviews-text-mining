@@ -1,0 +1,9 @@
+Presentation-ready Findings
+======================================================================
+
+1. TF is frequency-based, so it often highlights common words that appear repeatedly in the corpus.
+2. TF-IDF is more effective for identifying words that are more distinctive and representative.
+3. Positive reviews tend to include more praise-related words.
+4. Negative reviews tend to include more complaint- or dissatisfaction-related words.
+5. Grouping reviews into all / positive / negative helps reveal clearer keyword patterns.
+6. Domain-specific stopwords were removed in the analysis stage to improve keyword quality.

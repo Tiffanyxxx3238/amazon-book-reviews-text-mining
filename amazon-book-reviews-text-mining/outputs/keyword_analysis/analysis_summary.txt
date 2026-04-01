@@ -1,5 +1,5 @@
 Keyword Analysis Summary
-============================================================
+======================================================================
 
 1. Corpus Overview
 - all_reviews: 500 documents
@@ -10,41 +10,41 @@ Keyword Analysis Summary
 
 [all_reviews]
 TF top keywords:
-book, read, one, story, time, like, would, novel, character, make, people, really, good, much, love
+story, time, like, would, novel, character, make, people, really, good, much, love, life, many, get
 TF-IDF top keywords:
-book, read, one, story, time, great, like, really, love, would, good, character, novel, get, life
+story, time, great, like, really, love, would, good, character, novel, get, life, make, people, year
 
 [positive_reviews]
 TF top keywords:
-book, read, one, story, time, like, would, character, great, life, make, people, novel, good, love
+story, time, like, would, character, great, life, make, novel, people, good, love, first, work, get
 TF-IDF top keywords:
-book, read, one, story, great, time, love, really, good, like, life, character, get, would, year
+story, great, time, love, really, good, like, life, character, get, would, year, written, make, work
 
 [negative_reviews]
 TF top keywords:
-book, read, one, would, story, time, really, novel, people, character, make, like, author, even, many
+would, story, really, time, people, novel, make, like, character, author, even, many, good, dont, much
 TF-IDF top keywords:
-book, read, would, one, really, time, story, like, novel, make, people, author, good, even, character
+would, really, time, story, like, novel, people, make, author, good, even, character, think, many, page
 
 3. Method Comparison
 
 [all_reviews]
-- Overlap keywords: book, character, good, like, love, novel, one, read, really, story, time, would
-- TF-only keywords: make, much, people
-- TF-IDF-only keywords: get, great, life
+- Overlap keywords: character, get, good, life, like, love, make, novel, people, really, story, time, would
+- TF-only keywords: many, much
+- TF-IDF-only keywords: great, year
 
 [positive_reviews]
-- Overlap keywords: book, character, good, great, life, like, love, one, read, story, time, would
-- TF-only keywords: make, novel, people
-- TF-IDF-only keywords: get, really, year
+- Overlap keywords: character, get, good, great, life, like, love, make, story, time, work, would
+- TF-only keywords: first, novel, people
+- TF-IDF-only keywords: really, written, year
 
 [negative_reviews]
-- Overlap keywords: author, book, character, even, like, make, novel, one, people, read, really, story, time, would
-- TF-only keywords: many
-- TF-IDF-only keywords: good
+- Overlap keywords: author, character, even, good, like, make, many, novel, people, really, story, time, would
+- TF-only keywords: dont, much
+- TF-IDF-only keywords: page, think
 
-4. Initial Findings
-- TF tends to highlight words that appear frequently across the corpus.
-- TF-IDF tends to highlight words that are more distinctive or representative in specific reviews.
-- If positive and negative groups show different keywords, this suggests that keyword extraction can capture sentiment-related patterns.
-- The comparison between TF and TF-IDF helps reveal the difference between frequency-based importance and distinctiveness-based importance.
+4. Initial Interpretation
+- TF mainly highlights high-frequency words in each review group.
+- TF-IDF highlights more distinctive words that better represent specific reviews or sentiment groups.
+- Positive and negative reviews may contain different keyword patterns, which helps reveal sentiment-related characteristics.
+- Removing domain-generic words such as 'book' or 'read' helps the analysis focus more on meaningful descriptive terms.

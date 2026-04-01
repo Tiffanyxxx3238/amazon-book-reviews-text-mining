@@ -2,55 +2,64 @@ import os
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 
-# =========================
-# 1. 路徑設定
-# =========================
+# ==================================================
+# 1. 路徑與輸出資料夾設定
+# ==================================================
 INPUT_PATH = "data/processed/preprocessed_reviews.csv"
 OUTPUT_DIR = "outputs/keyword_analysis"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# =========================
-# 2. 參數設定
-# =========================
-TOP_N = 15  # 每組輸出前幾個關鍵詞
-MIN_DF = 2  # 至少在幾篇文件中出現過，避免太雜
-MAX_DF = 0.9  # 太常見的詞排除
-POSITIVE_THRESHOLD = 4  # review_score >= 4 視為 positive
-NEGATIVE_THRESHOLD = 2  # review_score <= 2 視為 negative
+# ==================================================
+# 2. 分析參數設定
+# ==================================================
+TOP_N = 15
+MIN_DF = 2
+MAX_DF = 0.90
 
-# =========================
+# 分組門檻
+POSITIVE_THRESHOLD = 4   # score >= 4
+NEGATIVE_THRESHOLD = 2   # score <= 2
+
+# 你同學 preprocessing 已做過一般 stopwords removal，
+# 這裡再加「書評領域太常見、但分析價值較低」的 domain stopwords
+CUSTOM_DOMAIN_STOPWORDS = {
+    "book", "read", "reading", "one"
+}
+
+# ngram_range=(1,1) 代表只看單字
+# 如果之後想做詞組，可改成 (1,2)
+NGRAM_RANGE = (1, 1)
+
+# ==================================================
 # 3. 讀取資料
-# =========================
+# ==================================================
 df = pd.read_csv(INPUT_PATH)
 
 print("===== Data Loaded =====")
 print("Columns:", df.columns.tolist())
-print("Number of rows:", len(df))
+print("Original rows:", len(df))
 print()
 
-# 檢查必要欄位
 required_cols = ["review_text", "review_score", "clean_text"]
 for col in required_cols:
     if col not in df.columns:
         raise ValueError(f"Missing required column: {col}")
 
-# 移除空值與空字串
+# 保險處理
 df = df.dropna(subset=["clean_text", "review_score"])
 df["clean_text"] = df["clean_text"].astype(str).str.strip()
 df = df[df["clean_text"] != ""]
-
-# 分數轉成數值
 df["review_score"] = pd.to_numeric(df["review_score"], errors="coerce")
 df = df.dropna(subset=["review_score"])
 
-print("===== Cleaned for Analysis =====")
+print("===== After Basic Filtering =====")
 print("Remaining rows:", len(df))
 print()
 
-# =========================
-# 4. 分組資料
-# =========================
+# ==================================================
+# 4. 分組
+# ==================================================
 all_df = df.copy()
 positive_df = df[df["review_score"] >= POSITIVE_THRESHOLD].copy()
 negative_df = df[df["review_score"] <= NEGATIVE_THRESHOLD].copy()
@@ -66,23 +75,24 @@ for group_name, group_df in groups.items():
     print(f"{group_name}: {len(group_df)}")
 print()
 
-# =========================
-# 5. 函式：取得 TF Top Keywords
-# =========================
-def get_top_tf_keywords(texts, top_n=15, min_df=2, max_df=0.9):
-    """
-    用 CountVectorizer 計算 TF（詞頻）
-    回傳 DataFrame: rank, keyword, score
-    """
+# ==================================================
+# 5. TF 函式
+# ==================================================
+def get_top_tf_keywords(texts, top_n=15, min_df=2, max_df=0.90,
+                        custom_stopwords=None, ngram_range=(1, 1)):
     if len(texts) == 0:
         return pd.DataFrame(columns=["rank", "keyword", "score"])
 
-    vectorizer = CountVectorizer(min_df=min_df, max_df=max_df)
-    X = vectorizer.fit_transform(texts)
+    vectorizer = CountVectorizer(
+        min_df=min_df,
+        max_df=max_df,
+        stop_words=list(custom_stopwords) if custom_stopwords else None,
+        ngram_range=ngram_range
+    )
 
-    # 所有文件的詞頻總和
-    term_sums = X.sum(axis=0).A1
+    X = vectorizer.fit_transform(texts)
     terms = vectorizer.get_feature_names_out()
+    term_sums = X.sum(axis=0).A1
 
     result_df = pd.DataFrame({
         "keyword": terms,
@@ -93,24 +103,26 @@ def get_top_tf_keywords(texts, top_n=15, min_df=2, max_df=0.9):
     result_df.insert(0, "rank", range(1, len(result_df) + 1))
     return result_df
 
-# =========================
-# 6. 函式：取得 TF-IDF Top Keywords
-# =========================
-def get_top_tfidf_keywords(texts, top_n=15, min_df=2, max_df=0.9):
-    """
-    用 TfidfVectorizer 計算 TF-IDF
-    這裡用「每個詞在所有文件的平均 TF-IDF」做排序
-    回傳 DataFrame: rank, keyword, score
-    """
+# ==================================================
+# 6. TF-IDF 函式
+# ==================================================
+def get_top_tfidf_keywords(texts, top_n=15, min_df=2, max_df=0.90,
+                           custom_stopwords=None, ngram_range=(1, 1)):
     if len(texts) == 0:
         return pd.DataFrame(columns=["rank", "keyword", "score"])
 
-    vectorizer = TfidfVectorizer(min_df=min_df, max_df=max_df)
-    X = vectorizer.fit_transform(texts)
+    vectorizer = TfidfVectorizer(
+        min_df=min_df,
+        max_df=max_df,
+        stop_words=list(custom_stopwords) if custom_stopwords else None,
+        ngram_range=ngram_range
+    )
 
-    # 平均 TF-IDF
-    term_means = X.mean(axis=0).A1
+    X = vectorizer.fit_transform(texts)
     terms = vectorizer.get_feature_names_out()
+
+    # 用平均 TF-IDF 當排序依據
+    term_means = X.mean(axis=0).A1
 
     result_df = pd.DataFrame({
         "keyword": terms,
@@ -121,9 +133,9 @@ def get_top_tfidf_keywords(texts, top_n=15, min_df=2, max_df=0.9):
     result_df.insert(0, "rank", range(1, len(result_df) + 1))
     return result_df
 
-# =========================
-# 7. 逐組分析並輸出 CSV
-# =========================
+# ==================================================
+# 7. 跑 all / positive / negative 的 TF、TF-IDF
+# ==================================================
 all_tf_results = {}
 all_tfidf_results = {}
 
@@ -134,13 +146,18 @@ for group_name, group_df in groups.items():
         texts=texts,
         top_n=TOP_N,
         min_df=MIN_DF,
-        max_df=MAX_DF
+        max_df=MAX_DF,
+        custom_stopwords=CUSTOM_DOMAIN_STOPWORDS,
+        ngram_range=NGRAM_RANGE
     )
+
     tfidf_df = get_top_tfidf_keywords(
         texts=texts,
         top_n=TOP_N,
         min_df=MIN_DF,
-        max_df=MAX_DF
+        max_df=MAX_DF,
+        custom_stopwords=CUSTOM_DOMAIN_STOPWORDS,
+        ngram_range=NGRAM_RANGE
     )
 
     all_tf_results[group_name] = tf_df
@@ -156,17 +173,15 @@ for group_name, group_df in groups.items():
     print(f"Saved: {tfidf_path}")
     print()
 
-# =========================
-# 8. 做方法比較表
-# =========================
-def compare_tf_and_tfidf(tf_df, tfidf_df, group_name):
-    """
-    將 TF 與 TF-IDF top keywords 並排比較
-    """
+# ==================================================
+# 8. TF vs TF-IDF 比較表
+# ==================================================
+def build_comparison_table(tf_df, tfidf_df):
     max_len = max(len(tf_df), len(tfidf_df))
 
     tf_keywords = tf_df["keyword"].tolist() + [""] * (max_len - len(tf_df))
     tf_scores = tf_df["score"].tolist() + [""] * (max_len - len(tf_df))
+
     tfidf_keywords = tfidf_df["keyword"].tolist() + [""] * (max_len - len(tfidf_df))
     tfidf_scores = tfidf_df["score"].tolist() + [""] * (max_len - len(tfidf_df))
 
@@ -177,92 +192,22 @@ def compare_tf_and_tfidf(tf_df, tfidf_df, group_name):
         "tfidf_keyword": tfidf_keywords,
         "tfidf_score": tfidf_scores
     })
+    return compare_df
 
+for group_name in groups.keys():
+    compare_df = build_comparison_table(
+        all_tf_results[group_name],
+        all_tfidf_results[group_name]
+    )
     compare_path = os.path.join(OUTPUT_DIR, f"comparison_tf_vs_tfidf_{group_name}.csv")
     compare_df.to_csv(compare_path, index=False, encoding="utf-8-sig")
     print(f"Saved: {compare_path}")
 
-for group_name in groups.keys():
-    compare_tf_and_tfidf(
-        all_tf_results[group_name],
-        all_tfidf_results[group_name],
-        group_name
-    )
-
 print()
 
-# =========================
-# 9. 產生初步分析文字
-# =========================
-def generate_analysis_text(groups, all_tf_results, all_tfidf_results):
-    """
-    產出可以直接交給學姊整合的分析摘要文字
-    """
-    lines = []
-    lines.append("Keyword Analysis Summary")
-    lines.append("=" * 60)
-    lines.append("")
-
-    # 基本資料量
-    lines.append("1. Corpus Overview")
-    for group_name, group_df in groups.items():
-        lines.append(f"- {group_name}: {len(group_df)} documents")
-    lines.append("")
-
-    # 各組 top 關鍵詞
-    lines.append("2. Top Keywords by Method")
-    for group_name in groups.keys():
-        lines.append(f"\n[{group_name}]")
-
-        tf_keywords = all_tf_results[group_name]["keyword"].tolist()
-        tfidf_keywords = all_tfidf_results[group_name]["keyword"].tolist()
-
-        lines.append("TF top keywords:")
-        lines.append(", ".join(tf_keywords) if tf_keywords else "No result")
-
-        lines.append("TF-IDF top keywords:")
-        lines.append(", ".join(tfidf_keywords) if tfidf_keywords else "No result")
-    lines.append("")
-
-    # 方法差異
-    lines.append("3. Method Comparison")
-    for group_name in groups.keys():
-        tf_set = set(all_tf_results[group_name]["keyword"].tolist())
-        tfidf_set = set(all_tfidf_results[group_name]["keyword"].tolist())
-
-        overlap = tf_set.intersection(tfidf_set)
-        tf_only = tf_set - tfidf_set
-        tfidf_only = tfidf_set - tf_set
-
-        lines.append(f"\n[{group_name}]")
-        lines.append(f"- Overlap keywords: {', '.join(sorted(overlap)) if overlap else 'None'}")
-        lines.append(f"- TF-only keywords: {', '.join(sorted(tf_only)) if tf_only else 'None'}")
-        lines.append(f"- TF-IDF-only keywords: {', '.join(sorted(tfidf_only)) if tfidf_only else 'None'}")
-
-    lines.append("")
-
-    # 初步結論模板
-    lines.append("4. Initial Findings")
-    lines.append("- TF tends to highlight words that appear frequently across the corpus.")
-    lines.append("- TF-IDF tends to highlight words that are more distinctive or representative in specific reviews.")
-    lines.append("- If positive and negative groups show different keywords, this suggests that keyword extraction can capture sentiment-related patterns.")
-    lines.append("- The comparison between TF and TF-IDF helps reveal the difference between frequency-based importance and distinctiveness-based importance.")
-    lines.append("")
-
-    return "\n".join(lines)
-
-summary_text = generate_analysis_text(groups, all_tf_results, all_tfidf_results)
-
-summary_path = os.path.join(OUTPUT_DIR, "analysis_summary.txt")
-with open(summary_path, "w", encoding="utf-8") as f:
-    f.write(summary_text)
-
-print(f"Saved: {summary_path}")
-print()
-
-# =========================
-# 10. 額外輸出：整合版總表
-# =========================
+# ==================================================
+# 9. 合併成總表
+# ==================================================
 combined_rows = []
 
 for group_name in groups.keys():
@@ -282,9 +227,90 @@ combined_df = combined_df[["group", "method", "rank", "keyword", "score"]]
 
 combined_path = os.path.join(OUTPUT_DIR, "all_keyword_results_combined.csv")
 combined_df.to_csv(combined_path, index=False, encoding="utf-8-sig")
-
 print(f"Saved: {combined_path}")
 print()
 
+# ==================================================
+# 10. 產生分析摘要
+# ==================================================
+def generate_analysis_summary(groups, all_tf_results, all_tfidf_results):
+    lines = []
+    lines.append("Keyword Analysis Summary")
+    lines.append("=" * 70)
+    lines.append("")
+
+    lines.append("1. Corpus Overview")
+    for group_name, group_df in groups.items():
+        lines.append(f"- {group_name}: {len(group_df)} documents")
+    lines.append("")
+
+    lines.append("2. Top Keywords by Method")
+    for group_name in groups.keys():
+        lines.append(f"\n[{group_name}]")
+
+        tf_keywords = all_tf_results[group_name]["keyword"].tolist()
+        tfidf_keywords = all_tfidf_results[group_name]["keyword"].tolist()
+
+        lines.append("TF top keywords:")
+        lines.append(", ".join(tf_keywords) if tf_keywords else "No result")
+
+        lines.append("TF-IDF top keywords:")
+        lines.append(", ".join(tfidf_keywords) if tfidf_keywords else "No result")
+    lines.append("")
+
+    lines.append("3. Method Comparison")
+    for group_name in groups.keys():
+        tf_set = set(all_tf_results[group_name]["keyword"].tolist())
+        tfidf_set = set(all_tfidf_results[group_name]["keyword"].tolist())
+
+        overlap = sorted(tf_set & tfidf_set)
+        tf_only = sorted(tf_set - tfidf_set)
+        tfidf_only = sorted(tfidf_set - tf_set)
+
+        lines.append(f"\n[{group_name}]")
+        lines.append(f"- Overlap keywords: {', '.join(overlap) if overlap else 'None'}")
+        lines.append(f"- TF-only keywords: {', '.join(tf_only) if tf_only else 'None'}")
+        lines.append(f"- TF-IDF-only keywords: {', '.join(tfidf_only) if tfidf_only else 'None'}")
+
+    lines.append("")
+    lines.append("4. Initial Interpretation")
+    lines.append("- TF mainly highlights high-frequency words in each review group.")
+    lines.append("- TF-IDF highlights more distinctive words that better represent specific reviews or sentiment groups.")
+    lines.append("- Positive and negative reviews may contain different keyword patterns, which helps reveal sentiment-related characteristics.")
+    lines.append("- Removing domain-generic words such as 'book' or 'read' helps the analysis focus more on meaningful descriptive terms.")
+    lines.append("")
+
+    return "\n".join(lines)
+
+summary_text = generate_analysis_summary(groups, all_tf_results, all_tfidf_results)
+
+summary_path = os.path.join(OUTPUT_DIR, "analysis_summary.txt")
+with open(summary_path, "w", encoding="utf-8") as f:
+    f.write(summary_text)
+
+print(f"Saved: {summary_path}")
+
+# ==================================================
+# 11. 產生簡報版重點
+# ==================================================
+presentation_lines = [
+    "Presentation-ready Findings",
+    "=" * 70,
+    "",
+    "1. TF is frequency-based, so it often highlights common words that appear repeatedly in the corpus.",
+    "2. TF-IDF is more effective for identifying words that are more distinctive and representative.",
+    "3. Positive reviews tend to include more praise-related words.",
+    "4. Negative reviews tend to include more complaint- or dissatisfaction-related words.",
+    "5. Grouping reviews into all / positive / negative helps reveal clearer keyword patterns.",
+    "6. Domain-specific stopwords were removed in the analysis stage to improve keyword quality.",
+    ""
+]
+
+presentation_path = os.path.join(OUTPUT_DIR, "presentation_findings.txt")
+with open(presentation_path, "w", encoding="utf-8") as f:
+    f.write("\n".join(presentation_lines))
+
+print(f"Saved: {presentation_path}")
+print()
 print("===== Done =====")
-print("Your outputs are in:", OUTPUT_DIR)
+print("All keyword analysis outputs are saved in:", OUTPUT_DIR)
